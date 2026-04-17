@@ -2,7 +2,7 @@ name: V-Shop Voucher AI CI Pipeline
 
 on:
   push:
-    [cite_start]branches: [ main, 'feature/voucher-ai' ] # Tự động kích hoạt khi push code Voucher AI 
+    branches: [ main ] # Tự động chạy mỗi khi push code lên nhánh main
 
 jobs:
   build-and-test:
@@ -11,19 +11,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
         with:
-          python-version: '3.9'
+          java-version: '17'
+          distribution: 'temurin'
 
       - name: Run Unit Tests
-        run: |
-          python -m unittest test_voucher.py
-        # Nếu test thất bại, GitHub Actions sẽ đánh dấu ĐỎ và dừng toàn bộ tiến trình 
+        run: mvn test 
+        # Lệnh này sẽ kiểm tra code. Nếu test fail, GitHub sẽ đánh ĐỎ và dừng tại đây.
 
-      - name: Packaging Release Candidate
-        [cite_start]if: success() # Chỉ chạy nếu bước test báo XANH 
+      - name: Package Release Candidate
+        if: success() # CHỈ CHẠY khi bước trên thành công (XANH)
         run: |
-          echo "Packaging Release Candidate for V-Shop 12/12..."
-          mkdir release
-          tar -czvf release/VShop_VoucherAI_RC.tar.gz .
+          mvn package
+          echo "Đã đóng gói Bản ứng viên phát hành (Release Candidate) thành công!"
